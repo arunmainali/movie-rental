@@ -35,7 +35,7 @@ Here is an outline of the project:
  -availability: Whether the movie is available for rental
  ```
 
-### Folder Structure:
+## Folder Structure:
     movie-rental-system/
     │
     ├── node_modules/
