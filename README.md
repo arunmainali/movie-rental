@@ -7,7 +7,7 @@ Here is an outline of the project:
 
 ## Frontend:
 
-HTML/CSS/JavaScript: Create a simple UI for users to interact with.
+HTML/CSS/JavaScript: Create a simple UI for users to interact with.  
 **Functionality**:
     - Simple text box for adding movies
     - Table to display available movies
