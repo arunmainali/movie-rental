@@ -1,4 +1,3 @@
-// frontend/script.js
 
 document.addEventListener('DOMContentLoaded', () => {
     const movieList = document.getElementById('movieList');
