@@ -9,9 +9,10 @@ Here is an outline of the project:
 
 HTML/CSS/JavaScript: Create a simple UI for users to interact with.  
 **Functionality**:
-    - Simple text box for adding movies
-    - Table to display available movies
-    - Buttons for removing movies and checking availability
+
+- Simple text box for adding movies
+- Table to display available movies
+- Buttons for removing movies and checking availability
 
 ## Backend:
 
