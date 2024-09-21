@@ -1,90 +1,61 @@
-// index.js
-
 const express = require('express');
 const { PrismaClient } = require('@prisma/client');
 const cors = require('cors');
 
 const app = express();
-const prisma = new PrismaClient();
-
 app.use(cors());
 app.use(express.json());
+const prisma = new PrismaClient();
 
-// Health Check Endpoint
-app.get('/', (req, res) => {
-    res.send('Movie Rental System Backend is running!');
-});
-
-// GET /movies: Retrieve all movies
+// Get all movies
 app.get('/movies', async (req, res) => {
-    try {
-        const movies = await prisma.movie.findMany();
-        res.json(movies);
-    } catch (error) {
-        console.error('Error fetching movies:', error);
-        res.status(500).json({ error: 'Error fetching movies' });
-    }
+    const movies = await prisma.movie.findMany();
+    res.status(200).send(movies); // 200 OK
 });
 
-// POST /movies: Add a new movie
+// Add a new movie
 app.post('/movies', async (req, res) => {
-    const { title } = req.body;
-
-    if (!title) {
-        return res.status(400).json({ error: 'Title is required' });
-    }
-
-    try {
-        const movie = await prisma.movie.create({
-            data: { title },
-        });
-        res.status(201).json({ message: 'Movie added!', movie });
-    } catch (error) {
-        console.error('Error adding movie:', error);
-        if (error.code === 'P2002') { // Unique constraint failed
-            res.status(409).json({ error: 'Movie title must be unique' });
-        } else {
-            res.status(500).json({ error: 'Error adding movie' });
+    const movie = await prisma.movie.create({
+        data: {
+            title: req.body.title,
+            availability: req.body.availability || true // Default to true if not provided
         }
-    }
+    });
+    res.status(201).send({ message: "Movie added!", movie }); // 201 Created
 });
 
-// DELETE /movies/:id: Remove a movie
+// Delete a movie by ID
 app.delete('/movies/:id', async (req, res) => {
-    const { id } = req.params;
-
-    try {
-        const movie = await prisma.movie.delete({
-            where: { id: parseInt(id) },
-        });
-        res.json({ message: 'Movie removed!', movie });
-    } catch (error) {
-        console.error('Error removing movie:', error);
-        res.status(500).json({ error: 'Error removing movie' });
-    }
+    const id = parseInt(req.params.id);
+    await prisma.movie.delete({
+        where: { id: id }
+    });
+    res.status(200).send({ message: "Movie deleted!" }); // 200 OK
 });
 
-// GET /movies/:id: Check availability of a movie
+// Check availability of a movie by ID
 app.get('/movies/:id', async (req, res) => {
-    const { id } = req.params;
+    const id = parseInt(req.params.id);
+    const movie = await prisma.movie.findUnique({
+        where: { id: id }
+    });
 
-    try {
-        const movie = await prisma.movie.findUnique({
-            where: { id: parseInt(id) },
-        });
-
-        if (!movie) {
-            return res.status(404).json({ error: 'Movie not found' });
-        }
-
-        res.json({ available: movie.availability });
-    } catch (error) {
-        console.error('Error checking availability:', error);
-        res.status(500).json({ error: 'Error checking availability' });
+    if (movie) {
+        res.status(200).send({ title: movie.title, availability: movie.availability });
+    } else {
+        res.status(404).send({ message: "Movie not found" }); // 404 Not Found
     }
 });
 
-const PORT = 3000;
-app.listen(PORT, () => {
-    console.log(`Server is running on http://localhost:${PORT}`);
+// Update movie availability by ID
+app.put('/movies/:id/availability', async (req, res) => {
+    const id = parseInt(req.params.id);
+    const updatedMovie = await prisma.movie.update({
+        where: { id: id },
+        data: { availability: req.body.availability }
+    });
+    res.status(200).send({ message: "Movie availability updated!", updatedMovie }); // 200 OK
 });
+
+const portNumber = 3000;
+app.listen(portNumber, () => console.log(`Server is running on port ${portNumber}.`));
